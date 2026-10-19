@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f1e8">
+<title>編み物アシスタント</title>
+<style>
+:root{--bg:#f7f1e8;--card:#fffdf9;--ink:#40362f;--muted:#82756a;--accent:#9b604d;--accent-dark:#714536;--soft:#f3e6dc;--line:#e8ddd2;--green:#58765c;--gold:#bd8a42}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;padding:env(safe-area-inset-top) 15px calc(22px + env(safe-area-inset-bottom))}
+main{max-width:540px;margin:auto}
+.screen{display:none}.screen.active{display:block}
+header{text-align:center;padding:22px 0 15px;position:relative}.kicker{font-size:11px;letter-spacing:.15em;color:var(--muted)}h1{font-size:25px;margin:7px 0 5px}.sub{font-size:13px;color:var(--muted);margin:0}
+.back{position:absolute;left:0;top:18px;background:#f1e8df;color:var(--ink);border-radius:999px;padding:8px 13px;font-size:13px;font-weight:650}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:17px;margin:12px 0;box-shadow:0 4px 16px #5b392008}
+.menu{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:10px 0;color:var(--ink);box-shadow:0 4px 16px #5b392008}
+.menu:active{background:var(--soft)}.menu .ic{font-size:30px}.menu .tx{flex:1}.menu b{font-size:16px;display:block}.menu small{font-size:12px;color:var(--muted)}.menu .go{color:var(--muted);font-size:18px}
+.menu.off{opacity:.5;cursor:default}.menu.off:active{background:var(--card)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:13px;color:var(--muted)}.pill{border-radius:999px;padding:6px 10px;font-size:12px;background:var(--soft);font-weight:750}
+.count{font-size:76px;line-height:1.08;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;margin:12px 0 0;letter-spacing:-.05em}.countlabel{text-align:center;font-size:13px;color:var(--muted)}
+.alert{background:#f3e6dc;border:1px solid #e6c6b4;border-radius:17px;padding:15px;text-align:center;margin-top:14px;min-height:110px;display:flex;flex-direction:column;justify-content:center}
+.alert.important{background:#f8e8c8;border-color:#e8c47d}.alert .eyebrow{font-size:12px;color:var(--muted)}.alert strong{font-size:22px;margin:5px 0}.alert p{font-size:13px;line-height:1.5;margin:0}
+button{font:inherit;border:0;cursor:pointer;touch-action:manipulation}.big{width:100%;background:var(--accent);color:white;border-radius:22px;padding:38px 12px;font-size:30px;font-weight:800;margin-top:13px;box-shadow:0 4px 0 var(--accent-dark)}.big:active{transform:translateY(2px);box-shadow:0 2px 0 var(--accent-dark)}
+.secondary{background:#f1e8df;color:var(--ink);border-radius:12px;padding:11px 12px;font-size:14px;font-weight:650}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.manual{display:none;margin-top:10px;padding:12px;background:#f8f3ec;border-radius:13px}.manual.open{display:block}.manual .row{display:flex;gap:8px;align-items:center}.manual input{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:11px;font:inherit;font-size:18px;text-align:center;background:#fff;color:var(--ink)}.manual .secondary{white-space:nowrap}
+.dirhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.dirhead b{font-size:15px}.badge{font-size:12px;font-weight:750;border-radius:999px;padding:5px 10px;background:var(--soft)}.badge.even{background:#dfeadf;color:#3f5a43}
+.dirtext{text-align:center;font-size:17px;font-weight:800;margin:4px 0 6px}
+.arrow{display:flex;align-items:center;gap:0;margin:0 2px}.arrow.right{flex-direction:row-reverse}.arrow{--c:var(--accent)}.arrow.even{--c:var(--green)}.arrow .ln{flex:1;height:5px;border-radius:3px;background:var(--c)}
+.arrow .head{width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent}.arrow.left .head{border-right:20px solid var(--c)}.arrow.right .head{border-left:20px solid var(--c)}
+.ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:5px 2px 10px}
+.dirnote{background:#f8f3ec;border-radius:13px;padding:11px 12px;font-size:13px;line-height:1.65;margin-bottom:10px}.dirnote b{color:var(--accent-dark)}
+.chartscroll{display:none}.chartscroll.show{display:block}.chart .cap{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}.chartscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:#fff}.chartscroll img{display:block;width:max(100%,900px);height:auto}
+.imgslot{margin:16px 0}.imgslot .lbl{font-size:14px;line-height:1.4;margin-bottom:8px}.imgslot .thumb{border:1px dashed var(--line);border-radius:11px;background:#fff;padding:6px;text-align:center;font-size:12px;color:var(--muted);margin-bottom:8px;overflow:hidden}.imgslot .thumb img{max-width:100%;max-height:70px;display:block;margin:auto}
+.hide{display:none!important}
+.feat{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer}.feat input{width:22px;height:22px;accent-color:var(--accent);flex:none}.feat b{display:block;font-size:14px}.feat small{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
+.sect{font-size:13px;font-weight:750;color:var(--muted);margin:18px 0 4px}
+.progress{height:8px;background:#eee4db;border-radius:99px;overflow:hidden;margin-top:14px}.progress div{height:100%;width:0;background:var(--green);transition:width .2s}.status{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
+h2{font-size:17px;margin:0 0 13px}.field{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}.field label{font-size:14px;line-height:1.4}.field input,.field select{width:110px;max-width:45%;padding:10px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:inherit;text-align:center}
+.help{background:#f8f3ec;border-radius:13px;padding:12px;font-size:12px;line-height:1.65;color:var(--muted);margin-top:13px}
+.patternlist{display:flex;flex-direction:column;gap:8px}.patternrow{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px}.patternrow span{font-size:13px;flex:1}.tag{font-size:11px;background:#eee4db;border-radius:7px;padding:4px 6px;color:var(--muted)}
+#toast{min-height:21px;text-align:center;color:var(--green);font-size:13px;margin-top:8px}footer{text-align:center;font-size:11px;color:var(--muted);padding:10px}
+@media (max-width:520px){
+body{padding-left:10px;padding-right:10px}
+header{padding:8px 0 4px}header .kicker,header .sub{display:none}h1{font-size:18px;margin:0}.back{top:4px;padding:6px 11px;font-size:12px}
+.card{padding:11px;margin:8px 0;border-radius:16px}
+.top .muted{font-size:12px}.pill{padding:4px 9px;font-size:11px}
+.count{font-size:50px;line-height:1;margin:0}.countlabel{font-size:11px;margin-top:-4px}
+.alert{min-height:0;padding:8px 10px;margin-top:6px;border-radius:13px}.alert .eyebrow{font-size:11px}.alert strong{font-size:17px;margin:1px 0}.alert p{font-size:11.5px;line-height:1.4}
+.big{padding:20px 10px;font-size:23px;margin-top:8px;border-radius:16px}
+.buttons{gap:6px;margin-top:7px}.secondary{padding:8px 10px;font-size:13px}
+#manualOpen{margin-top:6px!important}
+.progress{height:6px;margin-top:8px}.status{font-size:11px;margin-top:4px}#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:0;margin:0;background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;z-index:60;max-width:92%;text-align:center;pointer-events:none}#toast:empty{display:none}#toast:not(:empty){animation:toastfade 3.2s forwards}@keyframes toastfade{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0;visibility:hidden}}#savedStatus{display:none}
+.dirhead{margin-bottom:5px}.dirhead b{font-size:13px}.badge{padding:4px 8px;font-size:11px}
+.dirtext{font-size:14px;margin:0 0 4px}.arrow .ln{height:4px}.arrow .head{border-top-width:9px;border-bottom-width:9px}.arrow.left .head{border-right-width:15px}.arrow.right .head{border-left-width:15px}
+.ends{font-size:10px;margin:3px 2px 6px}.dirnote{padding:7px 9px;font-size:11.5px;line-height:1.5;margin-bottom:6px;border-radius:10px}
+}
+.actionrow{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.actionrow .alert{margin:0;min-height:0;padding:8px;border-radius:14px}.actionrow .alert strong{font-size:17px;margin:0;line-height:1.3}
+.actionrow .big{margin:0;width:100%;padding:15px 8px;font-size:21px;line-height:1.25;border-radius:14px;box-shadow:0 3px 0 var(--accent-dark)}.actionrow .big:active{transform:translateY(2px);box-shadow:0 1px 0 var(--accent-dark)}
+.gear{position:absolute;right:0;top:18px;width:42px;height:42px;border-radius:50%;background:#f1e8df;color:var(--ink);font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.gear.pulse{z-index:40;animation:pulse 1.2s ease-in-out infinite}@keyframes pulse{0%,100%{box-shadow:0 0 0 4px #fffc,0 0 0 8px #ffffff55}50%{box-shadow:0 0 0 8px #fffc,0 0 0 16px #ffffff33}}
+.sheet{display:none;position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top) 12px calc(24px + env(safe-area-inset-bottom))}.sheet.open{display:block}.sheet .in{max-width:540px;margin:auto}
+.sheethead{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:12px 2px;background:var(--bg)}.sheethead b{font-size:18px}
+.guide{display:none;position:fixed;inset:0;z-index:35;background:rgba(40,28,20,.66)}.guide.show{display:block}
+.guide .bigarrow{position:fixed;width:88px;animation:bob 1s ease-in-out infinite;filter:drop-shadow(0 4px 10px #0006)}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.guide .bubble{position:fixed;left:14px;right:14px;max-width:320px;margin-left:auto;background:#fffdf9;border-radius:20px;padding:16px;text-align:center;box-shadow:0 8px 30px #0005}.guide .bubble b{display:block;font-size:21px;margin-bottom:6px}.guide .bubble p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}.guide .bubble button{width:100%;background:var(--accent);color:#fff;border-radius:14px;padding:12px;font-size:16px;font-weight:800}
+@media (max-width:520px){.gear{top:2px;width:36px;height:36px;font-size:18px}}
+.txt{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:inherit;font-size:17px;margin:4px 0 12px}
+#newErr{color:#b3412f;font-size:12px;min-height:16px;margin-bottom:6px}
+#screen-cable h1{padding:0 50px;line-height:1.3;word-break:break-all}
+.danger{color:#b3412f!important}
+.prow{display:flex;align-items:center;gap:6px}.prow .menu{flex:1;width:auto;min-width:0}
+.prow.done .menu{opacity:.6}
+.more{flex:none;width:40px;height:40px;border-radius:50%;background:#f1e8df;color:var(--ink);font-size:20px;line-height:1;padding:0;font-weight:800}
+.more.on{background:var(--accent);color:#fff}
+.pacts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:-2px 0 8px;padding:8px;background:#f8f3ec;border-radius:14px}
+.pacts .secondary{padding:10px 4px;font-size:12.5px;background:#fff;border:1px solid var(--line)}
+.pacts.two{grid-template-columns:1fr 1fr}
+.tab .go{transition:transform .2s}.menu.tab.open{background:var(--soft)}.menu.tab.open .go{transform:rotate(180deg)}
+.tabpanel{display:none;margin:0 0 6px 8px;padding-left:10px;border-left:3px solid var(--soft)}.tabpanel.open{display:block}
+#screen-custom h1{padding:0 60px;line-height:1.3;word-break:break-all}
+.big:disabled{opacity:.45;box-shadow:none;cursor:default}
+.cname{font-size:22px;font-weight:800;text-align:center;margin:8px 0 0;line-height:1.3;word-break:break-all}
+.srow{border:1px solid var(--line);border-radius:14px;padding:10px;margin:10px 0;background:#fff}
+.srow-top{display:flex;gap:8px;align-items:center}
+.sno{flex:none;width:26px;height:26px;border-radius:50%;background:var(--soft);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ssel{flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:15px}
+.handle{flex:none;width:30px;height:38px;border-radius:9px;background:#f1e8df;color:var(--muted);font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;letter-spacing:-2px}
+.srow{position:relative;transition:transform .15s ease}.srow.drag{transition:none;z-index:5;box-shadow:0 10px 28px #5b392040;border-color:var(--accent);background:#fffdf9}
+.rowact{margin-left:auto;display:flex;gap:6px}.rowact button{height:38px;padding:0 11px;border-radius:9px;background:#f1e8df;color:var(--ink);font-size:13px;font-weight:650}
+.modal{display:none;position:fixed;inset:0;z-index:50;background:rgba(40,28,20,.55);align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}
+.mbox{width:100%;max-width:360px;background:var(--card);border-radius:20px;padding:18px;box-shadow:0 10px 40px #0005}.mbox b{display:block;font-size:17px;margin-bottom:4px}.mbox .txt{margin:10px 0 4px}
+#nmErr{color:#b3412f;font-size:12px;min-height:16px;margin-bottom:8px}
+.rowsfield{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px}
+.rowsfield input{width:92px;padding:10px;border:1px solid var(--line);border-radius:11px;text-align:center;font:inherit;font-size:17px;background:#fff;color:var(--ink)}
+#cErr{color:#b3412f;font-size:13px;min-height:16px;margin-top:8px}
+.patternrow.now{background:var(--soft);border-color:#e6c6b4;font-weight:750}.patternrow.fin{opacity:.55}
+#cToast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;z-index:60;max-width:92%;text-align:center;pointer-events:none;opacity:0;transition:opacity .25s}#cToast.show{opacity:1}
+.cchart{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:#fff}.cchart img{display:block;width:100%;height:auto;cursor:zoom-in}.cchart.wide img{width:max(100%,900px);cursor:zoom-out}
+#cImgs .imgslot:first-child{margin-top:8px}
+.cstitch{text-align:center;font-size:18px;font-weight:800;color:var(--accent-dark);margin-top:2px}.cstitch:empty{display:none}
+.rowsfield{flex-wrap:wrap}.rowsfield input{width:76px}
+.listsect{font-size:13px;font-weight:750;color:var(--muted);margin:18px 2px 0}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ホーム：編み方の一覧 -->
+<section class="screen" id="screen-home">
+ <header><div class="kicker">KNIT AT YOUR OWN PACE</div><h1>🧶 編み物アシスタント</h1><p class="sub">進めるものを選ぶか、新しく作ろう。</p></header>
+ <button class="big" id="newBtn">＋ 新しく作る</button>
+ <div id="plist" style="margin-top:6px"></div>
+ <footer>各画面のデータは、この端末のこのブラウザ内に自動保存されます。</footer>
+</section>
+
+<!-- 新規作成 -->
+<section class="screen" id="screen-new">
+ <header><button class="back" data-back>← 一覧</button><h1>＋ 新しく作る</h1></header>
+ <div class="card" id="newStep1"><h2>① 名前をつけよう</h2><input class="txt" id="newName" type="text" maxlength="30" placeholder="例：娘のセーター"><div id="newErr"></div><button class="big" id="toStep2" style="margin-top:0">次へ</button></div>
+ <div id="newStep2" style="display:none"><div class="card"><h2>② 種類を選ぼう</h2><div id="typeList"></div></div><button class="secondary" id="toStep1" style="width:100%">← 名前に戻る</button></div>
+</section>
+
+<!-- ケーブル編みカウンター -->
+<section class="screen" id="screen-cable">
+ <header><button class="back" data-back>← 一覧</button><button class="gear" id="gear" aria-label="設定">⚙️</button><div class="kicker" id="projKick">CABLE KNITTING</div><h1><span id="projIcon">🪢</span> <span id="projTitle">ケーブル編み</span></h1><p class="sub" id="projSub">段数を数えて、交差する段をお知らせ。</p></header>
+<div class="card">
+ <div class="top"><span class="muted">いま編んでいる段</span><span class="pill" id="phase" data-f="alert">準備OK</span></div>
+ <div class="count" id="count">0</div><div class="countlabel">段目</div>
+ <div class="actionrow"><div class="alert" id="alert" data-f="alert" aria-live="polite"><strong id="instruction">編み始めよう</strong></div><button class="big" id="plus">＋ 1段 編み終わった</button></div>
+ <div class="buttons"><button class="secondary" id="undo">↶ 1段戻す</button><button class="secondary" id="reset">段数をリセット</button></div>
+ <button class="secondary" id="manualOpen" data-f="manual" style="width:100%;margin-top:9px">✎ 段数を手動で入力</button>
+ <div class="manual" id="manual" data-f="manual">
+  <div id="mStep1"><div class="muted" style="margin-bottom:8px">途中から使う場合は、いま編み終えた段数を入力してね。</div><div class="row"><input id="manualInput" type="text" inputmode="numeric" placeholder="例：24"><button class="secondary" id="manualSet">確認へ</button><button class="secondary" id="manualCancel">やめる</button></div><div class="muted" id="mErr" style="color:#b3412f;margin-top:8px"></div></div>
+  <div id="mStep2" style="display:none;text-align:center"><div id="mMsg" style="font-size:16px;font-weight:700;margin-bottom:10px"></div><div class="buttons"><button class="secondary" id="manualOk" style="background:var(--accent);color:#fff">変更する</button><button class="secondary" id="manualBack">戻る</button></div></div>
+ </div>
+ <div class="progress" data-f="alert"><div id="bar"></div></div><div class="status" id="status" data-f="alert">設定した交差段まで — 段</div><div id="toast" aria-live="polite"></div><div class="status" id="savedStatus">この端末のブラウザに自動保存</div>
+</div>
+<div class="card chart" id="chartCard">
+ <div class="dirhead"><b id="chartLabel">編み図</b><span class="badge" id="rowBadge" data-f="guide"></span></div>
+ <div id="guidePart" data-f="guide">
+ <div class="dirtext" id="dirText"></div>
+ <div class="arrow left" id="dirArrow"><i class="head"></i><i class="ln"></i></div>
+ <div class="ends"><span id="endL"></span><span id="endR"></span></div>
+ <div class="dirnote" id="dirNote"></div>
+ </div>
+ <div class="chartscroll" id="chartScroll"><img id="chartImg" alt="編み図"></div>
+</div>
+<div class="card" data-f="upcoming">
+ <h2>📍 次の作業を確認</h2>
+ <div class="patternlist" id="upcoming"></div>
+ <p class="help">ここに表示されるのは、設定した交差段の予定だよ。実際の編み図に細かい指示がある場合は、その編み図を優先してね。</p>
+</div>
+<div class="sheet" id="sheet"><div class="in"><div class="sheethead"><b>⚙️ 設定</b><button class="secondary" id="sheetClose">✕ 閉じる</button></div>
+<div class="card">
+ <div class="sect" style="margin-top:0" data-f="alert">🧩 使う機能を選ぶ</div>
+ <div id="featList" data-f="alert"></div>
+ <div class="muted" style="margin-top:6px" data-f="alert">オンにした機能だけ、画面に表示されるよ。</div>
+ <div class="field" data-f="alert upcoming image"><label for="first">最初に交差する段</label><input id="first" type="number" min="1" max="9999" value="6"></div>
+ <div class="field" data-f="alert upcoming image"><label for="interval">その後、何段ごとに交差？</label><input id="interval" type="number" min="1" max="999" value="6"></div>
+ <div class="field" data-f="alert upcoming"><label for="crossType">交差の種類</label><select id="crossType"><option value="右上交差">右上交差</option><option value="左上交差">左上交差</option><option value="交差編み">交差編み（方向指定なし）</option><option value="ケーブル編み">ケーブル編み</option></select></div>
+ <div class="field" data-f="alert upcoming"><label for="stitches">交差する目数（任意）</label><select id="stitches"><option value="">指定しない</option><option value="2目">2目ずつ</option><option value="3目">3目ずつ</option><option value="4目">4目ずつ</option><option value="6目">6目ずつ</option></select></div>
+ <div class="field" data-f="guide"><label for="dirOdd">奇数段の読む向き<br><span class="muted">偶数段は自動で逆向きになるよ</span></label><select id="dirOdd"><option value="L2R">左から右へ</option><option value="R2L">右から左へ</option></select></div>
+ <div class="imgslot" data-f="image"><div class="lbl">🖼 普通の段の編み図（画像）</div><div class="thumb" id="thumbNormal">未設定</div><div class="buttons"><button class="secondary" id="pickNormal">画像を選ぶ</button><button class="secondary" id="delNormal">削除</button></div><input type="file" accept="image/*" id="fileNormal" hidden></div>
+ <div class="imgslot" data-f="image"><div class="lbl">🖼 交差する段（イレギュラー）の編み図（画像）</div><div class="thumb" id="thumbCross">未設定</div><div class="buttons"><button class="secondary" id="pickCross">画像を選ぶ</button><button class="secondary" id="delCross">削除</button></div><input type="file" accept="image/*" id="fileCross" hidden></div>
+ <div class="sect">📁 プロジェクト</div>
+ <div class="field"><label for="projName">名前</label><input id="projName" type="text" maxlength="30" style="width:62%;max-width:62%"></div>
+ <div class="buttons" style="margin:0 0 10px"><button class="secondary" id="pinProj">📌 ピン留めする</button><button class="secondary" id="doneProj">✅ 完成にする</button></div>
+ <button class="secondary danger" id="delProj" style="width:100%;margin-bottom:12px">このプロジェクトを削除</button>
+ <button class="secondary" id="save" data-f="alert upcoming image guide save" style="width:100%;margin-top:5px">設定を反映する</button>
+ <div class="help" data-f="alert upcoming">例：最初の交差が6段目で、その後6段ごとなら「最初＝6」「間隔＝6」。6・12・18・24段目…にお知らせするよ。</div>
+</div></div></div>
+</section>
+
+<!-- カスタマイズ：フリーカウンター（準備中） -->
+<section class="screen" id="screen-custom">
+ <header><button class="back" data-back>← 一覧</button><button class="gear" id="cGear" aria-label="設定">⚙️</button><div class="kicker">CUSTOM COUNTER</div><h1>🎯 <span id="customTitle"></span></h1><p class="sub">編み方ごとに、段数を数える。</p></header>
+
+ <!-- カウンター -->
+ <div id="cMain">
+  <div class="card">
+   <div class="top"><span class="muted" id="cOverall"></span><span class="pill" id="cPill"></span></div>
+   <div class="cname" id="cName"></div><div class="cstitch" id="cStitch"></div>
+   <div class="count" id="cCount">0</div><div class="countlabel" id="cOf"></div>
+   <div class="progress"><div id="cBar"></div></div>
+   <div class="status" id="cNext"></div>
+   <button class="big" id="cPlus" style="margin-top:12px">＋ 1段 編み終わった</button>
+   <div class="buttons"><button class="secondary" id="cUndo">↶ 1段戻す</button><button class="secondary" id="cReset">最初からやり直す</button></div>
+  </div>
+  <div class="card hide" id="cChartCard"><div class="dirhead"><b id="cChartLabel">編み図</b><span class="muted">タップで拡大</span></div><div class="cchart" id="cChart"></div></div>
+  <div class="card"><h2>📋 全体の流れ</h2><div class="patternlist" id="cFlow"></div></div>
+ </div>
+
+ <div class="sheet" id="csheet"><div class="in"><div class="sheethead"><b>⚙️ 設定</b><button class="secondary" id="cSheetClose">✕ 閉じる</button></div>
+  <div class="card">
+   <div class="sect" style="margin-top:0">🧶 編む順番</div>
+   <div id="cSheetHost"><div id="cEditor"><div class="help" id="cHelp"></div><div id="cTop"></div><div id="cList"></div><button class="secondary" id="cAdd" style="width:100%">＋ 編み方を追加</button><label class="feat" style="margin-top:16px"><input type="checkbox" id="cUseImg"><span><b>編み図を追加する</b><small>チェックすると、編み方ごとに編み図の画像を登録できるよ</small></span></label><div id="cImgs"></div><input type="file" accept="image/*" id="cFile" hidden><div id="cErr"></div></div></div>
+   <div class="sect">📁 プロジェクト</div>
+   <div class="field"><label for="cProjName">名前</label><input id="cProjName" type="text" maxlength="30" style="width:62%;max-width:62%"></div>
+   <div class="buttons" style="margin:0 0 10px"><button class="secondary" id="cPin">📌 ピン留めする</button><button class="secondary" id="cDone">✅ 完成にする</button></div>
+   <button class="secondary danger" id="cDel" style="width:100%;margin-bottom:12px">このプロジェクトを削除</button>
+   <button class="secondary" id="cSave" style="width:100%">設定を反映する</button>
+  </div>
+ </div></div>
+ <div id="cToast" aria-live="polite"></div>
+</section>
+
+<div class="guide" id="guide"><svg class="bigarrow" id="guideArrow" viewBox="0 0 80 110"><path d="M40 4 L76 46 H52 V106 H28 V46 H4 Z" fill="#ffd36b" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg><div class="bubble" id="guideBubble"><b id="guideTitle">ここから設定できるよ！</b><p id="guideText">⚙️ を押すと、編み図の読み方ガイドや、編み図の画像をオンにできるよ。</p><button id="guideOk">わかった</button></div></div>
+<div class="modal" id="nameModal"><div class="mbox"><b>新しい編み方の名前</b><div class="muted">つくると、選択肢に追加されるよ。</div><input class="txt" id="nmInput" type="text" maxlength="30" placeholder="例：ゴム編み"><div id="nmErr"></div><div class="buttons"><button class="secondary" id="nmCancel">やめる</button><button class="secondary" id="nmOk" style="background:var(--accent);color:#fff">追加する</button></div></div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+
+/* ===== 機能の一覧 =====
+   新しい編み方を足すときは、ここに1行追加して、
+   ready:true にし、<section id="screen-ID"> を作る。 */
+const FEATURES=[
+ {id:'simple',group:'template',icon:'🔢',name:'段数カウント',desc:'段数を数えるだけのシンプルなカウンター',kick:'ROW COUNTER',sub:'段数を数えるシンプルなカウンター。',ready:true},
+ {id:'cable',group:'template',icon:'🔁',name:'周期的（1段だけ変わる）',desc:'◯段ごとに、1段だけ違う編み方をする（ケーブル編みなど）',kick:'CABLE KNITTING',sub:'段数を数えて、交差する段をお知らせ。',ready:true},
+ {id:'custom-cycle',group:'template',screen:'custom',icon:'🔄',name:'周期的（組み合わせ）',desc:'いくつかの編み方を組み合わせて、それをくり返す',ready:true},
+ {id:'custom',group:'custom',screen:'custom',icon:'🧵',name:'編み方が変わる',desc:'横の長さ（目数）は同じで、編み方だけ変わる',ready:true},
+ {id:'custom-stitch',group:'custom',screen:'custom',icon:'↔️',name:'目数が変わる',desc:'編み方は同じで、横の長さ（目数）だけ変わる',ready:true},
+ {id:'custom-both',group:'custom',screen:'custom',icon:'🔀',name:'両方変わる',desc:'編み方も、横の長さ（目数）も変わる',ready:true}
+];
+const PRESETS={
+ bou:['メリヤス編み','裏メリヤス編み','ガーター編み','ゴム編み','かのこ編み','縄編み（ケーブル）','模様編み'],
+ kagi:['鎖編み','引き抜き編み','細編み','中長編み','長編み','長々編み','玉編み','パプコーン編み','すじ編み']};
+const isCustom=t=>t==='custom'||String(t).startsWith('custom-');
+const cMode=()=>curType==='custom-stitch'?'stitch':curType==='custom-both'?'both':curType==='custom-cycle'?'cycle':'pattern';
+const hasSt=m=>m==='stitch'||m==='both';
+const GROUPS=[
+ {id:'template',icon:'📋',name:'シンプル',desc:'周期的なもの・数えるだけのもの'},
+ {id:'custom',icon:'🎨',name:'カスタマイズ',desc:'周期のないものを、自由に組み合わせて数える'}
+];
+/* screen を省略した機能は、ケーブル編みの画面を共用する */
+
+/* ===== 画面切り替え ===== */
+/* ===== プロジェクトの保存 ===== */
+const PK_LIST='knit-projects-v1';
+let cur=null,curType='cable',curTool='bou';
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readList(){try{return JSON.parse(localStorage.getItem(PK_LIST)||'[]')}catch(e){return[]}}
+function writeList(l){try{localStorage.setItem(PK_LIST,JSON.stringify(l))}catch(e){alert('保存できませんでした。ブラウザの設定を確認してね。')}}
+function getProject(id){return readList().find(p=>p.id===id)||null}
+function createProject(name,type,tool){const id='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),l=readList();l.unshift({id,name,type,tool:tool||'bou',updated:Date.now(),opened:Date.now()});writeList(l);return id}
+function touch(){const l=readList(),p=l.find(x=>x.id===cur);if(p){p.updated=Date.now();writeList(l)}}
+function renameProject(n){const l=readList(),p=l.find(x=>x.id===cur);if(p){p.name=n;writeList(l);$('projTitle').textContent=n}}
+function migrate(){
+ if(localStorage.getItem(PK_LIST)!==null)return;
+ try{const old=localStorage.getItem(OLD_KEY);
+  if(old){const id=createProject('最初のケーブル編み','cable');localStorage.setItem('knit-proj-'+id,old);
+   for(const k of ['normal','cross']){const v=localStorage.getItem('cable-img-'+k);if(v){localStorage.setItem('knit-img-'+id+'-'+k,v);localStorage.removeItem('cable-img-'+k)}}
+   localStorage.removeItem(OLD_KEY)}
+  else writeList([])}catch(e){}
+}
+function openProject(p){
+ cur=p.id;curType=p.type;curTool=p.tool||'bou';{const f=FEATURES.find(x=>x.id===p.type)||FEATURES[0];$('projIcon').textContent=f.icon;$('projKick').textContent=f.kick||'';$('projSub').textContent=f.sub||'';$('customTitle').textContent=p.name}
+ patchProject(p.id,x=>{x.opened=Date.now()});
+ if(isCustom(p.type)){openCustom(p);return}
+ syncProjBtns();KEY='knit-proj-'+cur;IK.normal='knit-img-'+cur+'-normal';IK.cross='knit-img-'+cur+'-cross';
+ mClose();loadImgs();load();syncFeat();$('projTitle').textContent=p.name;$('projName').value=p.name;$('toast').textContent='';
+}
+
+/* ===== 画面の切り替え（#/ = 一覧、#/new = 新規作成、#/p/ID = プロジェクト） ===== */
+function route(){
+ const parts=location.hash.replace(/^#\/?/,'').split('/');
+ let screen='home',proj=null;
+ if(parts[0]==='new')screen='new';
+ else if(parts[0]==='p'){proj=getProject(parts[1]);const f=proj&&FEATURES.find(x=>x.id===proj.type&&x.ready);if(f)screen=f.screen||'cable';else proj=null}
+ document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+ $('screen-'+screen).classList.add('active');
+ closeSheet();
+ if(screen==='home'){moreId=null;renderHome()}else if(screen==='new')startNew();else openProject(proj);
+ window.scrollTo(0,0);
+ if(proj&&((screen==='cable'&&proj.type==='cable')||screen==='custom'))maybeGuide();else hideGuide();
+}
+function patchProject(id,fn){const l=readList(),p=l.find(x=>x.id===id);if(p){fn(p);writeList(l)}}
+function deleteProject(id){
+ try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.startsWith('knit-cimg-'+id+'-'))localStorage.removeItem(k)}}catch(e){}
+ try{localStorage.removeItem('knit-proj-'+id);localStorage.removeItem('knit-img-'+id+'-normal');localStorage.removeItem('knit-img-'+id+'-cross')}catch(e){}
+ writeList(readList().filter(x=>x.id!==id))}
+function syncProjBtns(){const p=getProject(cur);if(!p)return;
+ $('pinProj').textContent=p.pinned?'📌 ピン留めを外す':'📌 ピン留めする';$('pinProj').classList.toggle('hide',!!p.done);
+ $('doneProj').textContent=p.done?'↩ 編み中に戻す':'✅ 完成にする'}
+let moreId=null;
+function renderHome(){
+ const l=readList().sort((a,b)=>(b.opened||b.updated)-(a.opened||a.updated));
+ const act=l.filter(p=>!p.done),pins=act.filter(p=>p.pinned),rest=act.filter(p=>!p.pinned),dn=l.filter(p=>p.done);
+ const row=p=>{const f=FEATURES.find(x=>x.id===p.type)||{icon:'🧶',name:''};let c=0;try{c=JSON.parse(localStorage.getItem('knit-proj-'+p.id)||'{}').count||0}catch(e){}
+  const open=moreId===p.id;
+  return '<div class="prow'+(p.done?' done':'')+'"><button class="menu" data-open="'+p.id+'"><span class="ic">'+f.icon+'</span><span class="tx"><b>'+(p.pinned&&!p.done?'📌 ':'')+(p.done?'✅ ':'')+esc(p.name)+'</b><small>'+(p.tool==='kagi'?'かぎ針　':'')+f.name+(isCustom(p.type)?'':'　'+c+'段目')+'</small></span><span class="go">›</span></button><button class="more'+(open?' on':'')+'" data-more="'+p.id+'" aria-label="メニュー">⋯</button></div>'
+  +(open?'<div class="pacts'+(p.done?' two':'')+'">'+(p.done?'':'<button class="secondary" data-act="pin" data-id="'+p.id+'">'+(p.pinned?'📌 外す':'📌 ピン留め')+'</button>')+'<button class="secondary" data-act="done" data-id="'+p.id+'">'+(p.done?'↩ 編み中に戻す':'✅ 完成にする')+'</button><button class="secondary danger" data-act="del" data-id="'+p.id+'">🗑 削除</button></div>':'')};
+ let h='';
+ if(pins.length)h+='<div class="listsect" style="margin-top:6px">📌 ピン留め</div>'+pins.map(row).join('');
+ if(rest.length)h+=(pins.length?'<div class="listsect">最近開いた順</div>':'')+rest.map(row).join('');
+ if(dn.length)h+='<div class="listsect">✅ 完成したもの（'+dn.length+'）</div>'+dn.map(row).join('');
+ $('plist').innerHTML=h||'<div class="help">まだ何もないよ。「＋ 新しく作る」から、編みたいものの名前をつけて始めよう。</div>';
+}
+$('plist').onclick=e=>{
+ const a=e.target.closest('[data-act]');
+ if(a){const id=a.dataset.id,p=getProject(id);if(!p)return;
+  if(a.dataset.act==='pin')patchProject(id,x=>{x.pinned=!x.pinned});
+  else if(a.dataset.act==='done')patchProject(id,x=>{x.done=!x.done;if(x.done)x.pinned=false});
+  else if(a.dataset.act==='del'){if(!confirm('「'+p.name+'」を削除する？段数・設定・編み図の画像も全部消えるよ。'))return;deleteProject(id)}
+  moreId=null;renderHome();return}
+ const m=e.target.closest('[data-more]');
+ if(m){moreId=moreId===m.dataset.more?null:m.dataset.more;renderHome();return}
+ const b=e.target.closest('[data-open]');if(b)location.hash='#/p/'+b.dataset.open};
+$('newBtn').onclick=()=>{location.hash='#/new'};
+let pendingName='';
+function startNew(){closeTabs();$('newName').value='';$('newErr').textContent='';$('newStep1').style.display='block';$('newStep2').style.display='none'}
+$('toStep2').onclick=()=>{const n=$('newName').value.trim();if(!n){$('newErr').textContent='名前を入力してね。';return}pendingName=n;$('newStep1').style.display='none';$('newStep2').style.display='block'};
+$('toStep1').onclick=()=>{$('newStep2').style.display='none';$('newStep1').style.display='block'};
+const typeItem=(f,tool)=>f.ready
+ ?'<button class="menu" data-type="'+f.id+'" data-tool="'+tool+'"><span class="ic">'+f.icon+'</span><span class="tx"><b>'+f.name+'</b><small>'+f.desc+'</small></span><span class="go">›</span></button>'
+ :'<div class="menu off"><span class="ic">'+f.icon+'</span><span class="tx"><b>'+f.name+'</b><small>'+f.desc+'</small></span></div>';
+const tabBtn=(id,ic,name,desc)=>'<button class="menu tab" data-tab="'+id+'"><span class="ic">'+ic+'</span><span class="tx"><b>'+name+'</b><small>'+desc+'</small></span><span class="go">▾</span></button>';
+const TOOLS=[
+ {id:'bou',icon:'🪡',name:'棒針編み',desc:'棒針で編むもの'},
+ {id:'kagi',icon:'🧶',name:'かぎ針編み',desc:'かぎ針で編むもの'}];
+$('typeList').innerHTML=TOOLS.map(t=>tabBtn(t.id,t.icon,t.name,t.desc)+'<div class="tabpanel" id="tab-'+t.id+'">'
+ +GROUPS.map(g=>tabBtn(t.id+'-'+g.id,g.icon,g.name,g.desc)+'<div class="tabpanel" id="tab-'+t.id+'-'+g.id+'">'+FEATURES.filter(f=>f.group===g.id).map(f=>typeItem(f,t.id)).join('')+'</div>').join('')
+ +'</div>').join('');
+function closeTabs(){document.querySelectorAll('#typeList .tab,#typeList .tabpanel').forEach(x=>x.classList.remove('open'))}
+$('typeList').onclick=e=>{
+ const t=e.target.closest('[data-tab]');
+ if(t){const was=t.classList.contains('open');[...t.parentElement.children].forEach(c=>{if(c.classList.contains('tab')||c.classList.contains('tabpanel'))c.classList.remove('open')});if(!was){t.classList.add('open');$('tab-'+t.dataset.tab).classList.add('open')}return}
+ const b=e.target.closest('[data-type]');if(!b)return;
+ guideNext=b.dataset.type!=='simple';location.hash='#/p/'+createProject(pendingName,b.dataset.type,b.dataset.tool)};
+$('delProj').onclick=()=>{const p=getProject(cur);if(!p||!confirm('「'+p.name+'」を削除する？段数・設定・編み図の画像も全部消えるよ。'))return;
+ deleteProject(cur);cur=null;location.hash='#/'};
+$('pinProj').onclick=()=>{patchProject(cur,x=>{x.pinned=!x.pinned});syncProjBtns();$('toast').textContent=getProject(cur).pinned?'一覧の一番上にピン留めしたよ！':'ピン留めを外したよ。'};
+$('doneProj').onclick=()=>{patchProject(cur,x=>{x.done=!x.done;if(x.done)x.pinned=false});syncProjBtns();const d=getProject(cur).done;$('toast').textContent=d?'完成にしたよ！一覧の一番下にまとまるよ 🎉':'編み中に戻したよ。'};
+document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{location.hash='#/'});
+window.addEventListener('hashchange',route);
+
+/* ===== ケーブル編みカウンター（保存キーは以前と同じ） ===== */
+const OLD_KEY='cable-assistant-v2';let KEY='';
+const FX=[
+ {id:'guide',name:'編み図の読み方ガイド',desc:'奇数段・偶数段の読む向きを矢印で表示'},
+ {id:'image',name:'編み図の画像',desc:'普通の段と交差する段の画像を登録して表示'}
+];
+const ALWAYS=['alert','upcoming','manual'];
+const DEF_F={alert:false,upcoming:false,manual:false,guide:false,image:false};
+const SIMPLE_F=['manual','save'];
+const feat=id=>curType==='simple'?SIMPLE_F.includes(id):(ALWAYS.includes(id)||!!(s.features&&s.features[id]));
+function applyFeatures(){document.querySelectorAll('[data-f]').forEach(e=>{e.classList.toggle('hide',!e.dataset.f.split(' ').some(feat))})}
+
+function newState(){return {count:0,first:6,interval:6,crossType:'右上交差',stitches:'',dirOdd:'L2R',features:{}}}
+let s=newState();
+function load(){s=newState();try{const x=JSON.parse(localStorage.getItem(KEY)||'null');if(x)s={...s,...x}}catch(e){}
+if(s.crossType==='縄編み')s.crossType='ケーブル編み';
+s.features={...DEF_F,...(s.features||{})};
+$('first').value=s.first;$('interval').value=s.interval;$('crossType').value=s.crossType;$('stitches').value=s.stitches;$('dirOdd').value=s.dirOdd;render();$('savedStatus').textContent='✓ 保存データを読み込みました'}
+function persist(){touch();
+  try{localStorage.setItem(KEY,JSON.stringify(s));$('savedStatus').textContent='✓ この端末に自動保存済み'}
+  catch(e){$('savedStatus').textContent='保存できませんでした。ブラウザの設定を確認してね。'}
+}
+function crossAt(n){return n>=s.first&&(n-s.first)%s.interval===0}
+function nextAfter(n){return n<s.first?s.first:s.first+(Math.floor((n-s.first)/s.interval)+1)*s.interval}
+function actionText(){return s.crossType+(s.stitches?'（'+s.stitches+'）':'')}
+function render(){
+ $('count').textContent=s.count;
+ const due=s.count>0&&crossAt(s.count), next=nextAfter(s.count);
+ $('phase').textContent=due?'交差する段！':s.count===0?'準備OK':'通常の段';
+ $('alert').classList.toggle('important',due);
+ $('instruction').textContent=s.count===0?'編み始めよう':due?'★ '+actionText()+' ★':'通常の段を編む';
+ $('status').textContent=due?'今が交差段だよ！':'次の交差段（'+next+'段目）まで あと '+(next-s.count)+' 段';
+ const progressBase=s.count<s.first?s.count:s.count-s.first;
+ const denom=s.count<s.first?s.first:s.interval;
+ $('bar').style.width=(due?100:Math.min(100,Math.max(0,(progressBase%denom)/denom*100)))+'%';
+ const list=[];for(let i=0;i<4;i++){list.push(s.count===0?s.first+i*s.interval:next+i*s.interval)}
+ $('upcoming').innerHTML=list.map((n,i)=>'<div class="patternrow"><span>'+(i===0?'次':'その次')+'：'+n+'段目</span><span class="tag">'+actionText()+'</span></div>').join('');
+ $('toast').textContent='';
+ showChart();
+ applyFeatures();
+}
+$('plus').onclick=()=>{s.count++;persist();render();if(feat('alert')&&crossAt(s.count))$('toast').textContent='交差する段だよ！ 編み図をチェックしてね 🧶'};
+$('undo').onclick=()=>{if(s.count>0)s.count--;persist();render()};
+$('reset').onclick=()=>{if(confirm('段数を0に戻す？設定は残るよ。')){s.count=0;persist();render()}};
+let pending=null;
+function mShow(step){$('mStep1').style.display=step===1?'block':'none';$('mStep2').style.display=step===2?'block':'none'}
+function mClose(){$('manual').classList.remove('open');mShow(1);$('mErr').textContent='';pending=null}
+$('manualOpen').onclick=()=>{const o=$('manual').classList.toggle('open');if(o){mShow(1);$('mErr').textContent='';$('manualInput').value=s.count}else mClose()};
+$('manualCancel').onclick=mClose;
+$('manualBack').onclick=()=>{mShow(1);pending=null};
+$('manualSet').onclick=()=>{
+ const raw=$('manualInput').value.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).trim();
+ if(!/^\d{1,4}$/.test(raw)){$('mErr').textContent='0〜9999の整数を入力してね。';return}
+ const n=Number(raw);$('mErr').textContent='';
+ if(n===s.count){mClose();return}
+ pending=n;$('mMsg').textContent='いまの '+s.count+' 段目 → '+n+' 段目 に変更する？';mShow(2)};
+$('manualOk').onclick=()=>{if(pending===null)return;s.count=pending;persist();render();mClose();$('toast').textContent=s.count+'段目に変更したよ！'};
+$('save').onclick=()=>{const first=Math.floor(Number($('first').value)),interval=Math.floor(Number($('interval').value));if(!Number.isFinite(first)||first<1||!Number.isFinite(interval)||interval<1){alert('段数は1以上の数字にしてね。');return} s.first=Math.min(first,9999);s.interval=Math.min(interval,999);s.crossType=$('crossType').value;s.stitches=$('stitches').value;s.dirOdd=$('dirOdd').value;const nn=$('projName').value.trim();if(nn)renameProject(nn);persist();render();$('toast').textContent='設定を反映したよ！';closeSheet()};
+
+/* ===== 編み図の画像（縮小してこの端末に保存） ===== */
+const IK={normal:'',cross:''};
+let imgs={normal:'',cross:''};
+function loadImgs(){for(const k in IK){try{imgs[k]=localStorage.getItem(IK[k])||''}catch(e){}}}
+function readsL2R(n){return (n%2===1)===(s.dirOdd!=='R2L')}
+function autoScroll(){const sc=$('chartScroll');if(!sc.classList.contains('show'))return;const l2r=readsL2R(Math.max(s.count,1));requestAnimationFrame(()=>{sc.scrollLeft=l2r?0:sc.scrollWidth})}
+function showChart(){
+ const n=Math.max(s.count,1),odd=n%2===1,l2r=readsL2R(n),due=s.count>0&&crossAt(s.count),k=due?'cross':'normal',src=imgs[k];
+ $('rowBadge').textContent=(s.count===0?'最初の1段目':n+'段目')+'（'+(odd?'奇数段・表側':'偶数段・裏側')+'）';
+ $('rowBadge').className='badge'+(odd?'':' even');
+ $('dirText').textContent=l2r?'左から右へ読む →':'← 右から左へ読む';
+ $('dirArrow').className='arrow '+(l2r?'right':'left')+(odd?'':' even');
+ $('endL').textContent=l2r?'左端（スタート）':'左端（ゴール）';
+ $('endR').textContent=l2r?'右端（ゴール）':'右端（スタート）';
+ $('dirNote').innerHTML=odd
+  ?'<b>表側</b>を見ながら、記号は<b>そのとおり</b>に編む。'
+  :'<b>裏返して裏側</b>を見ながら、記号は<b>逆</b>に編む（表目の記号→裏目、裏目の記号→表目）。';
+ const showImg=feat('image')&&!!src;
+ $('chartLabel').textContent=showImg?(due?'交差する段の編み図':'普通の段の編み図'):'編み図の読み方';
+ $('chartScroll').classList.toggle('show',showImg);
+ $('chartCard').classList.toggle('hide',!(feat('guide')||showImg));
+ if(showImg){if($('chartImg').getAttribute('src')!==src)$('chartImg').src=src;autoScroll()}
+ for(const key of ['normal','cross']){const th=$(key==='normal'?'thumbNormal':'thumbCross');th.innerHTML=imgs[key]?'<img alt="">':'未設定';if(imgs[key])th.firstChild.src=imgs[key]}
+}
+$('chartImg').onload=autoScroll;
+function shrink(file,done){
+ const fr=new FileReader();
+ fr.onerror=()=>done(null);
+ fr.onload=()=>{const im=new Image();im.onerror=()=>done(null);
+  im.onload=()=>{const W=Math.min(1600,im.width),H=Math.round(im.height*W/im.width),c=document.createElement('canvas');c.width=W;c.height=H;
+   const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.drawImage(im,0,0,W,H);done(c.toDataURL('image/jpeg',0.85))};
+  im.src=fr.result};
+ fr.readAsDataURL(file);
+}
+function bindImg(k,pick,file,del){
+ $(pick).onclick=()=>$(file).click();
+ $(file).onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  shrink(f,url=>{if(!url){alert('画像を読み込めなかったよ。別の画像で試してね。');return}
+   try{localStorage.setItem(IK[k],url);imgs[k]=url;showChart();$('toast').textContent='編み図を保存したよ！'}
+   catch(err){alert('保存できませんでした。画像が大きすぎるかも。')}})};
+ $(del).onclick=()=>{if(!imgs[k])return;if(!confirm('この編み図の画像を削除する？')) return;
+  try{localStorage.removeItem(IK[k])}catch(e){}imgs[k]='';showChart()};
+}
+bindImg('normal','pickNormal','fileNormal','delNormal');
+bindImg('cross','pickCross','fileCross','delCross');
+
+$('featList').innerHTML=FX.map(f=>'<label class="feat"><input type="checkbox" data-fid="'+f.id+'"><span><b>'+f.name+'</b><small>'+f.desc+'</small></span></label>').join('');
+$('featList').onchange=e=>{const id=e.target.dataset.fid;if(!id)return;s.features[id]=e.target.checked;persist();render()};
+function syncFeat(){document.querySelectorAll('[data-fid]').forEach(c=>{c.checked=feat(c.dataset.fid)})}
+/* ===== 設定シート・はじめてのご案内 ===== */
+const GK='cable-guide-seen';
+function lockScroll(on){document.body.style.overflow=on?'hidden':''}
+function openSheet(){hideGuide(true);$('sheet').classList.add('open');$('sheet').scrollTop=0;lockScroll(true)}
+function closeSheet(){let any=false;for(const id of ['sheet','csheet']){if($(id).classList.contains('open')){$(id).classList.remove('open');any=true}}if(any)lockScroll(false)}
+function seen(){try{return localStorage.getItem(GK)==='1'}catch(e){return false}}
+function hideGuide(mark){$('guide').classList.remove('show');$('gear').classList.remove('pulse');$('cGear').classList.remove('pulse');if(mark){try{localStorage.setItem(GK,'1')}catch(e){}}if(!$('sheet').classList.contains('open'))lockScroll(false)}
+let guideNext=false;
+function maybeGuide(){
+ if(!guideNext)return;guideNext=false;
+ const custom=isCustom(curType),g=custom?$('cGear'):$('gear');
+ $('guideTitle').textContent=custom?'まずここで設定しよう！':'ここから設定できるよ！';
+ $('guideText').textContent=custom?'⚙️ を押して、編む順番（どの編み方を何段、など）を決めよう。決めたあとも、⚙️からいつでも変えられるよ。':'⚙️ を押すと、編み図の読み方ガイドや、編み図の画像をオンにできるよ。';
+ window.scrollTo(0,0);lockScroll(true);$('guide').classList.add('show');g.classList.add('pulse');
+ requestAnimationFrame(()=>{const r=g.getBoundingClientRect(),a=$('guideArrow');
+  a.style.left=Math.max(4,Math.min(innerWidth-92,r.left+r.width/2-44))+'px';a.style.top=(r.bottom+10)+'px';
+  $('guideBubble').style.top=(r.bottom+10+120)+'px'})
+}
+$('gear').onclick=openSheet;
+$('sheetClose').onclick=closeSheet;
+$('guideOk').onclick=()=>hideGuide(true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+
+/* ===== フリーカウンター（編み方ごとに段数を数える） ===== */
+const NK='knit-names-v1';
+let CS=null,draft=[],draftImg=false,draftTop={fixed:'',base:'',repeat:''};
+const SETUP_HELP={
+ cycle:'「ひとまとまり（1セット）」の中身を、順番に並べてね。それを何回くり返すかも、上で決められるよ（空欄ならずっと）。<br>例：ゴム編み 2段 → メリヤス編み 4段 を 5回くり返す<br>名前は「＋ 新しい名前をつくる」で追加すると、次からは選ぶだけでOK。同じ内容は「複製」、並べ替えは左の「⋮⋮」をつかんで動かせるよ。',
+ pattern:'「どの編み方を、何段編むか」を順番に並べてね。<br>例：ゴム編み 10段 → メリヤス編み 30段 → 模様編み 8段<br>名前は「＋ 新しい名前をつくる」で追加すると、次からは選ぶだけでOK。同じ内容は「複製」、並べ替えは左の「⋮⋮」をつかんで動かせるよ。あとから⚙️でいつでも変えられるよ。',
+ stitch:'「何目で、何段編むか」を順番に並べてね。<br>例：40目で10段 → 44目で8段 → 48目で20段<br>同じ内容は「複製」、並べ替えは左の「⋮⋮」をつかんで動かせるよ。あとから⚙️でいつでも変えられるよ。',
+ both:'「どの編み方を、何目で、何段編むか」を順番に並べてね。<br>例：ゴム編み 40目 10段 → メリヤス編み 48目 30段<br>名前は「＋ 新しい名前をつくる」で追加すると、次からは選ぶだけでOK。同じ内容は「複製」、並べ替えは左の「⋮⋮」をつかんで動かせるよ。あとから⚙️でいつでも変えられるよ。'};
+const stepLabel=x=>{const m=cMode();return m==='stitch'?x.stitches+'目':m==='both'?x.name+'（'+x.stitches+'目）':x.name};
+const nameKey=()=>'knit-names-v2-'+curTool;
+function readNames(){try{let r=localStorage.getItem(nameKey());if(r===null&&curTool==='bou')r=localStorage.getItem(NK);const a=JSON.parse(r||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function addNames(arr){const n=readNames();arr.forEach(x=>{if(x&&!n.includes(x))n.push(x)});try{localStorage.setItem(nameKey(),JSON.stringify(n))}catch(e){}}
+function cLoad(){let x=null;try{x=JSON.parse(localStorage.getItem('knit-proj-'+cur)||'null')}catch(e){}
+ CS={configured:false,steps:[],count:0,...(x||{})};if(!Array.isArray(CS.steps))CS.steps=[]}
+function cSaveState(){touch();try{localStorage.setItem('knit-proj-'+cur,JSON.stringify(CS))}catch(e){alert('保存できませんでした。ブラウザの設定を確認してね。')}}
+const cSet=()=>CS.steps.reduce((a,x)=>a+x.rows,0);
+const cTotal=()=>cMode()==='cycle'?(CS.repeat>0?cSet()*CS.repeat:Infinity):cSet();
+function cPos(){
+ const set=cSet(),len=CS.steps.length;if(!len)return{idx:0,done:0,cycle:1};
+ if(cMode()==='cycle'){
+  if(CS.repeat>0&&CS.count>=set*CS.repeat)return{idx:len,done:0,cycle:CS.repeat};
+  let c=CS.count%set;const cyc=Math.floor(CS.count/set)+1;
+  for(let i=0;i<len;i++){if(c<CS.steps[i].rows)return{idx:i,done:c,cycle:cyc};c-=CS.steps[i].rows}}
+ let c=CS.count;for(let i=0;i<len;i++){if(c<CS.steps[i].rows)return{idx:i,done:c,cycle:1};c-=CS.steps[i].rows}
+ return{idx:len,done:0,cycle:1}}
+let cToastT=0;
+function cToast(m){const t=$('cToast');t.textContent=m;t.classList.add('show');clearTimeout(cToastT);cToastT=setTimeout(()=>t.classList.remove('show'),3200)}
+
+function openCustom(p){
+ cLoad();draftImg=false;draftTop={fixed:'',base:'',repeat:''};draft=[];$('customTitle').textContent=p.name;$('cToast').classList.remove('show');
+ CS.useImages=!!CS.useImages;renderC()}
+
+function renderC(){
+ const m=cMode(),n=CS.steps.length;
+ if(!n){
+  $('cOverall').textContent='全体 0 段';$('cPill').textContent='未設定';$('cName').textContent='まだ設定がないよ';$('cStitch').textContent='';
+  $('cCount').textContent='0';$('cOf').textContent='／ — 段';$('cBar').style.width='0%';$('cNext').textContent='⚙️から、編む順番を設定しよう';
+  $('cPlus').disabled=true;$('cPlus').textContent='先に設定してね';$('cChartCard').classList.add('hide');
+  $('cFlow').innerHTML='<div class="help" style="margin:0">まだ何も決まっていないよ。右上の ⚙️ から、編む順番を決めよう。</div><button class="secondary" id="cOpenSet" style="width:100%;margin-top:10px">⚙️ 設定をひらく</button>';return}
+ const T=cTotal(),pos=cPos(),fin=pos.idx>=n,st=CS.steps[pos.idx],cyc=m==='cycle',rep=CS.repeat||0;
+ $('cOverall').textContent=cyc?(rep?'全体 '+CS.count+' / '+T+' 段':'全体 '+CS.count+' 段'):'全体 '+CS.count+' / '+T+' 段';
+ $('cPill').textContent=fin?'完了':cyc?pos.cycle+'周目'+(rep?' / '+rep:'')+'（'+(pos.idx+1)+'/'+n+'）':(pos.idx+1)+' / '+n+' つ目';
+ $('cName').textContent=fin?'🎉 ぜんぶ完了！':m==='stitch'?(CS.baseName||'いまの編み方'):st.name;
+ $('cStitch').textContent=fin?'':m==='pattern'||cyc?(m==='pattern'&&CS.fixedStitches?CS.fixedStitches+'目':''):st.stitches+'目';
+ $('cCount').textContent=fin?T:pos.done;
+ $('cOf').textContent=fin?'／ '+T+' 段 編み終わったよ':'／ '+st.rows+' 段';
+ $('cBar').style.width=(fin?100:pos.done/st.rows*100)+'%';
+ const nx=CS.steps[pos.idx+1];
+ $('cNext').textContent=fin?'おつかれさま！':nx?'次：'+stepLabel(nx)+'（'+nx.rows+'段）':(cyc&&(!rep||pos.cycle<rep)?'次：'+stepLabel(CS.steps[0])+'（'+(pos.cycle+1)+'周目）':'これが最後だよ');
+ $('cPlus').disabled=fin;$('cPlus').textContent=fin?'完了しました':'＋ 1段 編み終わった';
+ {const show=CS.useImages&&!fin,id=!show?'':m==='stitch'?'__main':st.name,img=show?cImg(id):'';
+  $('cChartCard').classList.toggle('hide',!show);
+  if(show){$('cChartLabel').textContent=m==='stitch'?'📖 編み図':'📖 '+st.name+'の編み図';$('cChart').classList.remove('wide');
+   $('cChart').innerHTML=img?'<img alt="編み図" src="'+img+'">':'<div class="muted" style="padding:14px;text-align:center">この編み方の編み図は未設定だよ。⚙️から追加できるよ。</div>'}}
+ $('cFlow').innerHTML=(cyc?'<div class="muted" style="margin-bottom:8px">この'+n+'つを1セットとして、'+(rep?rep+'回':'ずっと')+'くり返すよ。</div>':'')+CS.steps.map((x,i)=>{const cls=i<pos.idx||fin?'fin':i===pos.idx?'now':'';
+  const mark=cls==='fin'?'✅':cls==='now'?'▶':'○';
+  const tag=cls==='now'?pos.done+' / '+x.rows+'段':x.rows+'段';
+  return '<div class="patternrow '+cls+'"><span>'+mark+' '+esc(stepLabel(x))+'</span><span class="tag">'+tag+'</span></div>'}).join('');
+}
+$('cFlow').addEventListener('click',e=>{if(e.target.closest('#cOpenSet'))$('cGear').click()});
+$('cPlus').onclick=()=>{
+ if(!CS.steps.length||cPos().idx>=CS.steps.length)return;
+ CS.count++;cSaveState();const pos=cPos();renderC();
+ if(pos.done===0){const len=CS.steps.length,fin=pos.idx>=len,prev=CS.steps[(pos.idx>0?pos.idx:len)-1];
+  cToast(fin?'🎉 ぜんぶ終わったよ！':'「'+stepLabel(prev)+'」が終わったよ！次は「'+stepLabel(CS.steps[pos.idx])+'」'+(cMode()==='cycle'&&pos.idx===0?'（'+pos.cycle+'周目）':''))}
+};
+$('cUndo').onclick=()=>{if(CS.count>0){CS.count--;cSaveState();renderC()}};
+$('cReset').onclick=()=>{if(CS.steps.length&&confirm('最初の編み方の0段目に戻す？編む順番の設定は残るよ。')){CS.count=0;cSaveState();renderC()}};
+
+/* --- 設定エディタ（最初の設定と⚙️で共用） --- */
+function blankRow(){return{name:'',rows:'',stitches:''}}
+function renderEditor(mode){
+ const m=cMode(),pre=PRESETS[curTool]||[],names=[...new Set([...readNames(),...draft.map(r=>r.name.trim()).filter(Boolean)])].filter(n=>!pre.includes(n));
+ $('cHelp').style.display='block';
+ $('cHelp').innerHTML=CS.configured&&CS.steps.length?'上から順に編んでいくよ。左の「⋮⋮」をつかんで動かすと並べ替え、「複製」で同じ内容をすぐ下に増やせるよ。段数は「全体の通算」で数えているので、もう編んだ部分を増やしたり減らしたりすると、いまの位置がずれることがあるよ。':SETUP_HELP[m];
+ $('cErr').textContent='';
+ $('cTop').innerHTML=m==='pattern'
+  ?'<div class="field"><label for="cFixSt">横の長さ（目数）<br><span class="muted">変わらない目数。わかるときだけでOK</span></label><input id="cFixSt" type="text" inputmode="numeric" placeholder="例：40" value="'+esc(draftTop.fixed)+'"></div>'
+  :m==='cycle'
+  ?'<div class="field"><label for="cRepeat">くり返す回数<br><span class="muted">空欄なら、ずっとくり返すよ</span></label><input id="cRepeat" type="text" inputmode="numeric" placeholder="例：5" value="'+esc(draftTop.repeat)+'"></div>'
+  :m==='stitch'
+  ?'<div class="field"><label for="cBase">編み方の名前<br><span class="muted">任意（例：メリヤス編み）</span></label><input id="cBase" type="text" maxlength="30" style="width:55%;max-width:55%" value="'+esc(draftTop.base)+'"></div>':'';
+ $('cList').innerHTML=draft.map((r,i)=>{
+  const opt=n=>'<option value="'+esc(n)+'"'+(r.name===n?' selected':'')+'>'+esc(n)+'</option>';
+  const opts='<option value=""'+(!r.name?' selected':'')+' disabled>編み方を選ぶ…</option>'
+   +'<optgroup label="よく使う編み方">'+pre.map(opt).join('')+'</optgroup>'
+   +(names.length?'<optgroup label="使った名前">'+names.map(opt).join('')+'</optgroup>':'')
+   +'<option value="__new">＋ 新しい名前をつくる</option>';
+  const top='<div class="srow-top"><span class="handle" data-handle aria-label="ドラッグで並べ替え">⋮⋮</span><span class="sno">'+(i+1)+'</span>'+(m==='stitch'?'<span class="muted" style="font-size:13px">この区間</span>':'<select class="ssel" data-k="sel">'+opts+'</select>')+'</div>';
+  const rf='<input data-k="rows" type="text" inputmode="numeric" placeholder="段数" value="'+esc(r.rows)+'"><span>段</span>';
+  const sf='<input data-k="stitches" type="text" inputmode="numeric" placeholder="目数" value="'+esc(r.stitches||'')+'"><span>目</span>';
+  const acts='<div class="rowact"><button data-dup>複製</button><button class="danger" data-del aria-label="削除">✕</button></div>';
+  return '<div class="srow" data-i="'+i+'">'+top+'<div class="rowsfield">'+(m==='stitch'?sf+rf:m==='both'?sf+rf:rf+'<span>編む</span>')+acts+'</div></div>'}).join('');
+ $('cUseImg').checked=draftImg;renderImgs();
+}
+$('cTop').addEventListener('input',e=>{if(e.target.id==='cFixSt')draftTop.fixed=e.target.value;else if(e.target.id==='cRepeat')draftTop.repeat=e.target.value;else if(e.target.id==='cBase')draftTop.base=e.target.value});
+const rowOf=e=>{const r=e.target.closest('.srow');return r?Number(r.dataset.i):-1};
+const edMode=()=>$('csheet').classList.contains('open')?'sheet':'setup';
+$('cList').addEventListener('change',e=>{if(e.target.dataset.k!=='sel')return;const i=rowOf(e),v=e.target.value;if(i<0)return;
+ if(v==='__new'){openNameModal(i)}else{draft[i].name=v;renderEditor(edMode())}});
+$('cList').addEventListener('input',e=>{const i=rowOf(e);if(i<0)return;{const k=e.target.dataset.k;if(k==='rows'||k==='stitches')draft[i][k]=e.target.value}});
+$('cList').addEventListener('click',e=>{const i=rowOf(e);if(i<0)return;
+ if(e.target.closest('[data-del]')){draft.splice(i,1);renderEditor(edMode())}
+ else if(e.target.closest('[data-dup]')){draft.splice(i+1,0,{...draft[i]});renderEditor(edMode());const n=$('cList').children[i+1];if(n)n.scrollIntoView({block:'nearest',behavior:'smooth'})}});
+$('cAdd').onclick=()=>{draft.push(blankRow());renderEditor(edMode());const l=$('cList').lastElementChild;if(l)l.scrollIntoView({block:'center',behavior:'smooth'})};
+
+/* --- 新しい名前のポップアップ --- */
+let nmIdx=-1;
+function openNameModal(i){nmIdx=i;$('nmInput').value='';$('nmErr').textContent='';$('nameModal').classList.add('open');setTimeout(()=>$('nmInput').focus(),30)}
+function closeNameModal(){$('nameModal').classList.remove('open');nmIdx=-1;renderEditor(edMode())}
+function okNameModal(){const n=$('nmInput').value.trim();if(!n){$('nmErr').textContent='名前を入れてね。';return}
+ if(nmIdx>=0&&draft[nmIdx]){draft[nmIdx].name=n;addNames([n])}
+ closeNameModal()}
+$('nmOk').onclick=okNameModal;$('nmCancel').onclick=closeNameModal;
+$('nmInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();okNameModal()}else if(e.key==='Escape'){e.stopPropagation();closeNameModal()}});
+$('nameModal').addEventListener('pointerdown',e=>{if(e.target===$('nameModal'))closeNameModal()});
+
+/* --- ドラッグで並べ替え --- */
+let dg=null;
+const scroller=()=>$('csheet').classList.contains('open')?$('csheet'):null;
+const scrollY=()=>{const sc=scroller();return sc?sc.scrollTop:window.scrollY};
+$('cList').addEventListener('pointerdown',e=>{
+ const h=e.target.closest('[data-handle]');if(!h)return;e.preventDefault();
+ const rows=[...$('cList').children],s0=rowOf(e),sy=scrollY();
+ const geo=rows.map(r=>{const b=r.getBoundingClientRect();return{top:b.top+sy,h:b.height}});
+ dg={rows,s:s0,t:s0,y0:e.clientY,sy,geo,lastY:e.clientY,id:e.pointerId,h,raf:0};
+ rows[s0].classList.add('drag');try{h.setPointerCapture(e.pointerId)}catch(_){}
+ dg.raf=requestAnimationFrame(dragTick)});
+function dragUpdate(){
+ if(!dg)return;const{rows,s,geo}=dg,dy=dg.lastY-dg.y0+(scrollY()-dg.sy),step=geo[s].h+10;
+ const c=geo[s].top+geo[s].h/2+dy;let t=s;
+ geo.forEach((g,i)=>{const m=g.top+g.h/2;if(i<s&&c<m)t=Math.min(t,i);if(i>s&&c>m)t=Math.max(t,i)});
+ dg.t=t;rows[s].style.transform='translateY('+dy+'px)';
+ rows.forEach((r,i)=>{if(i===s)return;let o=0;if(s<t&&i>s&&i<=t)o=-step;else if(t<s&&i>=t&&i<s)o=step;r.style.transform=o?'translateY('+o+'px)':''})}
+function dragTick(){
+ if(!dg)return;const sc=scroller(),y=dg.lastY;let d=0;if(y<90)d=-12;else if(y>innerHeight-90)d=12;
+ if(d){if(sc)sc.scrollTop+=d;else window.scrollBy(0,d)}
+ dragUpdate();dg.raf=requestAnimationFrame(dragTick)}
+$('cList').addEventListener('pointermove',e=>{if(dg&&e.pointerId===dg.id)dg.lastY=e.clientY});
+function dragEnd(e){if(!dg||(e&&e.pointerId!==dg.id))return;cancelAnimationFrame(dg.raf);
+ const{s,t}=dg;dg=null;
+ if(t!==s){const [m]=draft.splice(s,1);draft.splice(t,0,m)}
+ renderEditor(edMode())}
+$('cList').addEventListener('pointerup',dragEnd);$('cList').addEventListener('pointercancel',dragEnd);
+
+/* --- 編み図の画像（編み方の名前ごとに保存） --- */
+const cImgKey=n=>'knit-cimg-'+cur+'-'+encodeURIComponent(n);
+function cImg(n){try{return localStorage.getItem(cImgKey(n))||''}catch(e){return''}}
+let cImgNames=[],cImgTarget='';
+function renderImgs(){
+ const box=$('cImgs');if(!draftImg){box.innerHTML='';return}
+ const m=cMode();
+ cImgNames=m==='stitch'?[{id:'__main',label:'編み図'}]:[...new Set(draft.map(r=>r.name.trim()).filter(Boolean))].map(n=>({id:n,label:n}));
+ box.innerHTML=cImgNames.length?cImgNames.map((x,i)=>{const im=cImg(x.id);
+  return '<div class="imgslot"><div class="lbl">🖼 '+esc(x.label)+'</div><div class="thumb">'+(im?'<img alt="" src="'+im+'">':'未設定')+'</div><div class="buttons"><button class="secondary" data-pick="'+i+'">画像を選ぶ</button><button class="secondary" data-delimg="'+i+'">削除</button></div></div>'}).join('')
+  :'<div class="muted" style="margin-top:8px">編み方の名前を決めると、ここに画像の枠が出るよ。</div>'}
+$('cUseImg').onchange=e=>{draftImg=e.target.checked;renderImgs()};
+$('cImgs').addEventListener('click',e=>{
+ const pk=e.target.closest('[data-pick]'),dl=e.target.closest('[data-delimg]');
+ if(pk){cImgTarget=cImgNames[Number(pk.dataset.pick)].id;$('cFile').click()}
+ else if(dl){const x=cImgNames[Number(dl.dataset.delimg)];if(!cImg(x.id)||!confirm('「'+x.label+'」の編み図を削除する？'))return;try{localStorage.removeItem(cImgKey(x.id))}catch(_){}renderImgs()}});
+$('cFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f||!cImgTarget)return;const n=cImgTarget;
+ shrink(f,url=>{if(!url){alert('画像を読み込めなかったよ。別の画像で試してね。');return}
+  try{localStorage.setItem(cImgKey(n),url);renderImgs()}catch(err){alert('保存できませんでした。画像が大きすぎるかも。')}})};
+$('cChart').onclick=()=>{if($('cChart').querySelector('img'))$('cChart').classList.toggle('wide')};
+
+function commitDraft(){
+ const m=cMode(),steps=[],num=v=>String(v).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).trim(),ok=v=>/^\d{1,4}$/.test(v)&&Number(v)>=1;
+ const base=draftTop.base.trim();
+ if(m==='pattern'){const f=num(draftTop.fixed);if(f&&!ok(f)){$('cErr').textContent='横の長さ（目数）は、1〜9999の数字にしてね。';return false}}
+ if(m==='cycle'){const f=num(draftTop.repeat);if(f&&!ok(f)){$('cErr').textContent='くり返す回数は、1〜9999の数字にしてね。';return false}}
+ for(let i=0;i<draft.length;i++){const d=draft[i],name=m==='stitch'?base:d.name.trim(),raw=num(d.rows),st=num(d.stitches||'');
+  if(m!=='stitch'&&!name){$('cErr').textContent=(i+1)+'番目の編み方の名前を入れてね。';return false}
+  if(hasSt(m)&&!ok(st)){$('cErr').textContent=(i+1)+'番目の目数は、1〜9999の数字にしてね。';return false}
+  if(!ok(raw)){$('cErr').textContent=(i+1)+'番目の段数は、1〜9999の数字にしてね。';return false}
+  const x={name,rows:Number(raw)};if(hasSt(m))x.stitches=Number(st);steps.push(x)}
+ if(!steps.length){$('cErr').textContent='ひとつ以上入れてね。';return false}
+ CS.steps=steps;CS.configured=true;CS.useImages=draftImg;CS.count=Math.min(CS.count,cTotal());
+ CS.fixedStitches=m==='pattern'&&num(draftTop.fixed)?Number(num(draftTop.fixed)):0;CS.baseName=m==='stitch'?base:'';CS.repeat=m==='cycle'&&num(draftTop.repeat)?Number(num(draftTop.repeat)):0;
+ if(m!=='stitch')addNames(steps.map(x=>x.name));cSaveState();return true}
+
+/* --- ⚙️ 設定シート --- */
+function syncCBtns(){const p=getProject(cur);if(!p)return;
+ $('cPin').textContent=p.pinned?'📌 ピン留めを外す':'📌 ピン留めする';$('cPin').classList.toggle('hide',!!p.done);
+ $('cDone').textContent=p.done?'↩ 編み中に戻す':'✅ 完成にする'}
+$('cGear').onclick=()=>{
+ hideGuide(true);
+ draftImg=!!CS.useImages;draft=CS.steps.map(x=>({name:x.name,rows:String(x.rows),stitches:x.stitches?String(x.stitches):''}));if(!draft.length)draft=[blankRow()];
+ draftTop={fixed:CS.fixedStitches?String(CS.fixedStitches):'',base:CS.baseName||'',repeat:CS.repeat?String(CS.repeat):''};
+ $('cSave').textContent=CS.configured&&CS.steps.length?'設定を反映する':'この内容ではじめる';
+ $('csheet').classList.add('open');renderEditor('sheet');
+ const p=getProject(cur);$('cProjName').value=p?p.name:'';syncCBtns();
+ $('csheet').scrollTop=0;lockScroll(true)};
+$('cSheetClose').onclick=closeSheet;
+$('cSave').onclick=()=>{const wasConf=CS.configured&&CS.steps.length;if(!commitDraft())return;
+ const nn=$('cProjName').value.trim();if(nn){renameProject(nn);$('customTitle').textContent=nn}
+ const first=!wasConf;closeSheet();renderC();window.scrollTo(0,0);cToast(first?'設定したよ！さっそく編もう 🧶':'設定を反映したよ！')};
+$('cPin').onclick=()=>{patchProject(cur,x=>{x.pinned=!x.pinned});syncCBtns()};
+$('cDone').onclick=()=>{patchProject(cur,x=>{x.done=!x.done;if(x.done)x.pinned=false});syncCBtns()};
+$('cDel').onclick=()=>{const p=getProject(cur);if(!p||!confirm('「'+p.name+'」を削除する？段数・設定も全部消えるよ。'))return;deleteProject(cur);cur=null;location.hash='#/'};
+
+migrate();route();
+</script>
+</body>
+</html>
